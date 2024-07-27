@@ -1,4 +1,4 @@
-.popover.hover-popover {max-width: unset;}
+.ample.popover.hover-popover {max-width: unset;}
 .view-content:has(> svg.markmap) {padding: 0;}
 svg.markmap {
   width: 100%; height: 100%;

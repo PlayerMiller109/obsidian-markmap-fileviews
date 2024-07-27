@@ -91,7 +91,9 @@ const import_poper = (app, ob)=> {
     }
   }
   return class Poper extends ob.HoverPopover {
-    constructor({view, target}) { super(view, target, 200) }
+    constructor({view, target}) {
+      super(view, target, 200); this.hoverEl.addClass('ample')
+    }
     openLink = async (linkpath, rPath)=> {
       const file = app.metadataCache.getFirstLinkpathDest(linkpath.split('#')[0], rPath)
       let u1; if (file) u1 = app.embedRegistry.getEmbedCreator(file)
