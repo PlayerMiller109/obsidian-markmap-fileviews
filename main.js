@@ -183,7 +183,7 @@ const svg2src = async (svg)=> {
   await new Promise(r=> img.onload = ()=> r(ctxt.drawImage(img, 0, 0)))
   return cvs.toDataURL(`image/${dataJson.imgAbbr}`)
 }
-const import_addBar = (assumePath)=> (wrapper, mm)=> {
+const import_addBar = (assumePath, ob)=> (wrapper, mm)=> {
   const { Toolbar } = require(assumePath + '/packs/markmap-toolbar@0.17.js').markmap
   , exportAsImg = async (svg)=> {
     await mm.fit()
@@ -214,7 +214,7 @@ const import_genMM = (app, ob)=> {
   , assumePath = `${app.vault.adapter.basePath}/${app.plugins.manifests['obsidian-markmap-fileviews'].dir}`
   , { Transformer } = require(assumePath + '/packs/markmap-lib@0.17.js').markmap
   , { Markmap } = require(assumePath + '/packs/markmap-view@0.17.js').markmap
-  , funcBtns = afterTransform(app, ob), addBar = import_addBar(assumePath)
+  , funcBtns = afterTransform(app, ob), addBar = import_addBar(assumePath, ob)
   , genMM_base = async (wrapper, htmlText, sourcePath)=> {
     wrapper.empty(); const svg = wrapper.createSvg('svg')
     , lib = new Transformer(), { root } = lib.transform(htmlText)

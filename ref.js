@@ -12,7 +12,7 @@ lN = (linkpath, rPath)=> {
     const y = ()=> {
       linkctx.loadFile()
     }
-    return [4, setTImeout(y)]
+    return [4, setTimeout(y)]
   } else return [3, 2]
 }
 this.trigger = (name, ...arg)=> {
