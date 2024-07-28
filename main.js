@@ -235,7 +235,9 @@ const import_mmPlug = (app, ob)=> {
       )
     }
     updateLeaf = async file=> {
-      if (file?.extension != 'md') return; const md = await app.vault.read(file)
+      if (file?.extension != 'md') return; let md = await app.vault.read(file)
+      const { frontmatterPosition: fmPos } = app.metadataCache.getFileCache(file)
+      if (fmPos) md = md.split('\n').slice(fmPos.end.line+1).join('\n')
       await genMM(this.contentEl, await md2htmlText(md, file.path), file.path)
       this.leaf.view.titleEl.textContent = file.name
       this.leaf.tabHeaderInnerTitleEl.textContent = file.name
@@ -256,14 +258,15 @@ const import_mmPlug = (app, ob)=> {
     getIcon() { return mmIcon }
   }
   const blockParser = async (source, el, ctx)=> {
-    if (ctx.getSectionInfo(el)) {
-      await genMM(el, await md2htmlText(source, ctx.sourcePath), ctx.sourcePath)
-      const fmRgx = new RegExp(String.raw`---\nmarkmap:\n  height: (\d+)\n---`, '')
-      const fm = source.match(fmRgx)?.[1]; el.style.height = `${fm || 400}px`
-    } else {
-      const svg = await genMM_base(el, await md2htmlText(source, ctx.sourcePath), ctx.sourcePath)
+    const fmRgx = new RegExp(String.raw`---\nmarkmap:\n  height: (\d+)\n---\n`, '')
+    let height; const md = source.replace(fmRgx, (m, p1)=> { height = p1; return '' })
+    if (ctx.el.parentNode?.className =='print') {
+      const svg = await genMM_base(el, await md2htmlText(md, ctx.sourcePath), ctx.sourcePath)
       const img = Object.assign(new Image(), {src: await svg2src(svg)})
       img.onload = ()=> { el.empty(); el.append(img) }
+    } else {
+      await genMM(el, await md2htmlText(md, ctx.sourcePath), ctx.sourcePath)
+      el.style.height = `${height || 400}px`
     }
   }
   return function() {
