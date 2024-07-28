@@ -254,7 +254,7 @@ const import_mmPlug = (app, ob)=> {
     setUnpin = ()=> this.registerEvent(this.app.workspace.on('file-open', this.onFileOpen))
     offUnpin = ()=> this.app.workspace.off('file-open', this.onFileOpen)
     getViewType() { return mmViewType }
-    getDisplayText() { return 'Markmap' }
+    getDisplayText() { return this.file?.name || 'Markmap' }
     getIcon() { return mmIcon }
   }
   const blockParser = async (source, el, ctx)=> {
