@@ -274,7 +274,7 @@ const import_mmPlug = (app, ob)=> {
     this.registerView(mmViewType, leaf=> new mmView(leaf))
     this.registerMarkdownCodeBlockProcessor('markmap', blockParser)
     this.addCommand({
-      id: 'mm-active-file', name: 'Markmap Active File',
+      id: 'mm-active-note', name: 'Markmap active note',
       callback: async ()=> {
         const view = app.workspace.getActiveFileView()
         const leaf = app.workspace.getLeaf('split')
