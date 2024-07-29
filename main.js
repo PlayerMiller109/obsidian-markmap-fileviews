@@ -215,18 +215,16 @@ const import_genMM = (app, ob)=> {
   , { Transformer } = require(assumePath + '/packs/markmap-lib@0.17.js').markmap
   , { Markmap } = require(assumePath + '/packs/markmap-view@0.17.js').markmap
   , funcBtns = afterTransform(app, ob), addBar = import_addBar(assumePath, ob)
-  , genMM_base = async (wrapper, htmlText, sourcePath)=> {
+  return genMM = async (wrapper, htmlText, sourcePath)=> {
     wrapper.empty(); const svg = wrapper.createSvg('svg')
     , lib = new Transformer(), { root } = lib.transform(htmlText)
     , mm = Markmap.create(svg, opts, root); await mm.fit()
     funcBtns(svg, sourcePath); addBar(wrapper, mm); return svg
   }
-  , genMM = (ob.debounce)(genMM_base)
-  return { genMM_base, genMM }
 }
 const import_mmPlug = (app, ob)=> {
   const patcher = import_patch(app, ob)
-  const md2htmlText = getTextForTransform(app, ob), { genMM_base, genMM } = import_genMM(app, ob)
+  const md2htmlText = getTextForTransform(app, ob), genMM = import_genMM(app, ob)
   class mmView extends ob.FileView {
     onload() {
       setTimeout(async ()=> await this.updateLeaf(this.file)); this.genPinBtn()
@@ -238,7 +236,7 @@ const import_mmPlug = (app, ob)=> {
       if (file?.extension != 'md') return; let md = await app.vault.read(file)
       const { frontmatterPosition: fmPos } = app.metadataCache.getFileCache(file)
       if (fmPos) md = md.split('\n').slice(fmPos.end.line+1).join('\n')
-      await genMM(this.contentEl, await md2htmlText(md, file.path), file.path)
+      await (ob.debounce)(genMM(this.contentEl, await md2htmlText(md, file.path), file.path))
       this.leaf.view.titleEl.textContent = file.name
       this.leaf.tabHeaderInnerTitleEl.textContent = file.name
     }
@@ -261,12 +259,14 @@ const import_mmPlug = (app, ob)=> {
     const fmRgx = new RegExp(String.raw`---\nmarkmap:\n  height: (\d+)\n---\n`, '')
     let height; const md = source.replace(fmRgx, (m, p1)=> { height = p1; return '' })
     if (ctx.el.parentNode?.className =='print') {
-      const svg = await genMM_base(el, await md2htmlText(md, ctx.sourcePath), ctx.sourcePath)
+      const svg = await genMM(el, await md2htmlText(md, ctx.sourcePath), ctx.sourcePath)
       const img = Object.assign(new Image(), {src: await svg2src(svg)})
       img.onload = ()=> { el.empty(); el.append(img) }
     } else {
-      await genMM(el, await md2htmlText(md, ctx.sourcePath), ctx.sourcePath)
-      el.style.height = `${height || 400}px`
+      setTimeout(async ()=> {
+        el.style.height = `${height || 400}px`
+        await genMM(el, await md2htmlText(md, ctx.sourcePath), ctx.sourcePath)
+      })
     }
   }
   return function() {
