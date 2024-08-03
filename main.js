@@ -44,6 +44,7 @@ const import_poper = (app, ob)=> {
         })
         clickX = clientX; clickY = clientY
       }
+      const document = evt.target.ownerDocument
       document.addEventListener('mousemove', updatePosition)
       document.addEventListener('mouseup', function listener() {
         document.removeEventListener('mousemove', updatePosition)
@@ -92,7 +93,7 @@ const import_poper = (app, ob)=> {
   }
   return class Poper extends ob.HoverPopover {
     constructor({view, target}) {
-      super(view, target, 200); this.hoverEl.addClass('ample')
+      super(view, target, 140); this.hoverEl.addClass('ample')
     }
     openLink = async (linkpath, rPath)=> {
       const file = app.metadataCache.getFirstLinkpathDest(linkpath.split('#')[0], rPath)
@@ -120,9 +121,19 @@ const import_poper = (app, ob)=> {
 const import_patch = (app, ob)=> {
   const Poper = import_poper(app, ob)
   function userHover(view, target, linkpath, rPath) {
-    let a1 = view.hoverPopover
+    let a1 = view.hoverPopover, isCtrlKeyDown = !0
     if (a1 && a1.state !== ob.PopoverState.Hidden && a1.targetEl === target) return
-    a1 = new Poper({view, target}); a1.openLink(linkpath, rPath)
+    const document = target.ownerDocument
+    document.addEventListener('keyup', function listener(evt) {
+      if (evt.key == 'Control') isCtrlKeyDown = !1
+      document.removeEventListener('keyup', listener)
+    }, {once: !0})
+    if (this.timeoutId) clearTimeout(this.timeoutId)
+    this.timeoutId = setTimeout(()=> {
+      if (!isCtrlKeyDown) return
+      a1 = new Poper({view, target}); a1.openLink(linkpath, rPath)
+      this.timeoutId = void 0
+    }, 280)
   }
   return function patcher() {
     const PagePreview = app.internalPlugins.plugins['page-preview']
@@ -183,28 +194,6 @@ const svg2src = async (svg)=> {
   await new Promise(r=> img.onload = ()=> r(ctxt.drawImage(img, 0, 0)))
   return cvs.toDataURL(`image/${dataJson.imgAbbr}`)
 }
-const import_addBar = (assumePath, ob)=> (wrapper, mm)=> {
-  const { Toolbar } = require(assumePath + '/packs/markmap-toolbar@0.17.js').markmap
-  , exportAsImg = async (svg)=> {
-    await mm.fit()
-    Object.assign(document.createElement('a'), {
-      download: `.${dataJson.imgAbbr}`, href: await svg2src(svg)
-    }).click()
-  }
-  , customBtn = (bar)=> {
-    bar.register({
-      id: 'export-as-img', content: '', title: 'Export',
-      onClick: async ()=> await exportAsImg(bar.markmap.svg['_groups'][0][0])
-    })
-    bar.setItems(['export-as-img', ...Toolbar.defaultItems])
-    const barEl = bar.render()
-    ob.setIcon(barEl.children[0], 'download')
-    barEl.children[0].firstChild.setCssProps({width: '16px', height: '20px'})
-    return barEl
-  }
-  , bar = Toolbar.create(mm); bar.setBrand(!1) // hide markmap logo & url
-  wrapper.append(customBtn(bar))
-}
 const import_genMM = (app, ob)=> {
   const { colors } = dataJson, maxDepth = colors.length
   , opts = {
@@ -214,7 +203,29 @@ const import_genMM = (app, ob)=> {
   , assumePath = `${app.vault.adapter.basePath}/${app.plugins.manifests['obsidian-markmap-fileviews'].dir}`
   , { Transformer } = require(assumePath + '/packs/markmap-lib@0.17.js').markmap
   , { Markmap } = require(assumePath + '/packs/markmap-view@0.17.js').markmap
-  , funcBtns = afterTransform(app, ob), addBar = import_addBar(assumePath, ob)
+  , funcBtns = afterTransform(app, ob)
+  , { Toolbar } = require(assumePath + '/packs/markmap-toolbar@0.17.js').markmap
+  , addBar = (wrapper, mm)=> {
+    const bar = Toolbar.create(mm); bar.setBrand(!1) // hide markmap logo & url
+    , exportAsImg = async (svg)=> {
+      await mm.fit()
+      Object.assign(document.createElement('a'), {
+        download: `.${dataJson.imgAbbr}`, href: await svg2src(svg)
+      }).click()
+    }
+    , customBtn = (bar)=> {
+      bar.register({
+        id: 'export-as-img', content: '', title: 'Export',
+        onClick: async ()=> await exportAsImg(bar.markmap.svg['_groups'][0][0])
+      })
+      bar.setItems([...Toolbar.defaultItems, 'export-as-img'])
+      const barEl = bar.render()
+      ob.setIcon(barEl.children[4], 'download')
+      barEl.children[4].firstChild.setCssProps({width: '16px', height: '20px'})
+      return barEl
+    }
+    wrapper.append(customBtn(bar))
+  }
   return genMM = async (wrapper, htmlText, sourcePath)=> {
     wrapper.empty(); const svg = wrapper.createSvg('svg')
     , lib = new Transformer(), { root } = lib.transform(htmlText)
