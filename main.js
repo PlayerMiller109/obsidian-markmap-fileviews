@@ -20,8 +20,8 @@ const dataJson = {
 `
 const import_poper = (app, ob)=> {
   const userLeaf = (ctx, parent, linkpath, rPath)=> class extends ob.WorkspaceLeaf {
-    initial_num = {width: 576, height: 480}
-    initial = {width: `${this.initial_num.width}px`, height: `${this.initial_num.height}px`}
+    _width = 576; _height = 480
+    initial = {width: `${this._width}px`, height: `${this._height}px`}
     load = async ()=> {
       parent.setCssProps(this.initial)
       const wrapper = parent.createDiv()
@@ -76,9 +76,9 @@ const import_poper = (app, ob)=> {
         const { view: { innerWidth, innerHeight } } = evt
         parent.setCssProps(isMax ? {
           left: '42px', top: '28px', 'max-height': 'unset',
-          width: `${Math.max(innerWidth * 0.9, this.initial_num.width)}px`,
-          height: `${Math.max(innerHeight * 0.9, this.initial_num.height)}px`,
-        } : {left: `${innerWidth - 42 - this.initial_num.width}px`, ...this.initial})
+          width: `${Math.max(innerWidth * 0.9, this._width)}px`,
+          height: `${Math.max(innerHeight * 0.9, this._height)}px`,
+        } : {left: `${innerWidth - 42 - this._width}px`, ...this.initial})
         syncMaxEl()
       }
     }
@@ -87,7 +87,7 @@ const import_poper = (app, ob)=> {
       this.view.addAction('minus', 'Minimize', ()=> {
         if (!ctx.pinned) this.togglePin(!0)
         isMin = !isMin
-        parent.setCssProps({height: isMin ? '42px' : this.initial.height})
+        parent.setCssProps({height: isMin ? '42px' : this._height})
       })
     }
   }
