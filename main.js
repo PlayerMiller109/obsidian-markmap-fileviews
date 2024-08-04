@@ -19,7 +19,7 @@ const dataJson = {
   }
 `
 const import_poper = (app, ob)=> {
-  const userLeaf = (ctx, parent, linkpath, rPath)=> class extends ob.WorkspaceLeaf {
+  const userLeaf = (ctx, parent, linkpath, rPath)=> new class extends ob.WorkspaceLeaf {
     _width = 576; _height = 480
     initial = {width: `${this._width}px`, height: `${this._height}px`}
     load = async ()=> {
@@ -32,6 +32,7 @@ const import_poper = (app, ob)=> {
       this.genUserEls()
       this.view.headerEl.children[1].onmousedown = this.onDrag
       this.view.contentEl.onmousedown = this.onDrag
+      app.workspace.activeLeaf = null
     }
     onDrag = (evt)=> {
       this.togglePin(!0); if (!evt.ctrlKey) return
@@ -90,7 +91,7 @@ const import_poper = (app, ob)=> {
         parent.setCssProps({height: isMin ? '42px' : this._height})
       })
     }
-  }
+  }(app)
   return class Poper extends ob.HoverPopover {
     constructor({view, target}) {
       super(view, target, 140); this.hoverEl.addClass('ample')
@@ -98,7 +99,7 @@ const import_poper = (app, ob)=> {
     openLink = async (linkpath, rPath)=> {
       const file = app.metadataCache.getFirstLinkpathDest(linkpath.split('#')[0], rPath)
       let u1; if (file) u1 = app.embedRegistry.getEmbedCreator(file)
-      if (file && u1) await new (userLeaf(this, this.hoverEl, linkpath, rPath))(app).load();
+      if (file && u1) await userLeaf(this, this.hoverEl, linkpath, rPath).load();
       else this.blank()
     }
     blank = ()=> {
