@@ -32,9 +32,9 @@ const import_poper = (app, ob)=> {
       this.genUserEls()
       this.view.headerEl.children[1].onmousedown = this.onDrag
       this.view.contentEl.onmousedown = this.onDrag
-      app.workspace.activeLeaf = null
     }
     onDrag = (evt)=> {
+      app.workspace.activeLeaf = this
       this.togglePin(!0); if (!evt.ctrlKey) return
       let { clientX: clickX, clientY: clickY } = evt
       const updatePosition = moveEvt=> {
