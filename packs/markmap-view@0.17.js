@@ -1,6 +1,4 @@
-// d3.js has been in the same folder as this markmap-view.js
-const d3 = require('D:/Global Edu' + '/.obsidian' + '/plugins/obsidian-markmap-fileviews/packs/d3.js')
-
+const d3 = require('./d3.js')
 /**
  * Minified by jsDelivr using Terser v5.19.2.
  * Original file: /npm/markmap-view@0.17.0/dist/browser/index.js
