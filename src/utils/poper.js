@@ -32,8 +32,9 @@ module.exports = (app, ob)=> {
       }, 280)
     }
     onDrag = (evt)=> {
-      this.togglePin(!0); this.active()
-      if (!evt.ctrlKey) return
+      const tempFirstClick = evt.ctrlKey && !ctx.pinned
+      if (!tempFirstClick) this.togglePin(!0)
+      this.active(); if (!evt.ctrlKey) return
       let { clientX: clickX, clientY: clickY } = evt
       const updatePosition = moveEvt=> {
         const { clientX, clientY } = moveEvt
