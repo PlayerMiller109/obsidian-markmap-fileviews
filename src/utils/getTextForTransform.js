@@ -27,7 +27,11 @@ module.exports = (app, ob)=> {
       const cEl0 = el.children[0]; let _ihtml = ''
       if (cEl0) {
         for (const cEl of el.children) {
-          if (cEl.textContent) _ihtml += cEl.innerHTML
+          if (cEl.textContent) {
+            _ihtml += (
+              cEl.tagName != 'P' && cEl.children[0]
+            ) ? cEl.outerHTML : cEl.innerHTML
+          }
           else {
             const img0 = cEl.querySelector('img')
             if (img0) _ihtml += `${img0.outerHTML}</span>`
