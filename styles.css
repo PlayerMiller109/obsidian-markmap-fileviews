@@ -1,0 +1,21 @@
+@charset "UTF-8";
+
+.ample.popover.hover-popover {max-width: unset;}
+.view-content:has(> svg.markmap) {padding: 0;}
+svg.markmap {
+  width: 100%; height: 100%;
+  --markmap-text-color: var(--text-normal);
+  --markmap-highlight-bg: var(--text-highlight-bg);
+  background-color: var(--background-primary);
+}
+.markmap-foreign.markmap-foreign {
+  & code {color: inherit; background-color: inherit;}
+  & .copy-code-button {display: none;}
+}
+.mm-toolbar {
+  display: flex;
+  position: absolute;
+  bottom: 0; left: 4px;
+}
+.markdown-preview-view .mm-toolbar {position: relative;}
+.mm-toolbar-item:is(.active, :hover) {color: brown;}
