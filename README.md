@@ -1,11 +1,10 @@
 > [!tip]
 > Download the built plugin in the [Actions](https://github.com/PlayerMiller109/obsidian-markmap-fileviews/actions) list.
 > 
-> All workflows - Choose the latest one (no matter the name) - Artifacts
+> Choose one from All workflows. Click.
 > 
-> | 1     | <image width="120" src="https://github.com/user-attachments/assets/08a15bee-0c25-4ef1-8a56-9fc2cae186c6"> |
-> | :---  | :-------------------------------------------------------------------------------------------------------- |
-> | **2** | <image width="300" src="https://github.com/user-attachments/assets/c8579c52-93bc-49f6-831a-861ea2ef4e4b"> |
+> <image width="140" src="https://github.com/user-attachments/assets/08a15bee-0c25-4ef1-8a56-9fc2cae186c6"><br>
+> <image width="400" src="https://github.com/user-attachments/assets/f2b6eeb5-b3d4-49fb-8d2b-3509d0b888f7">
 
 This is a pure JS project. The author doesn't major in coding and hasn't learned TS yet.
 
