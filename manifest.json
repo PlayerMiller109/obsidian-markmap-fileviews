@@ -1,0 +1,10 @@
+{
+  "id": "markmap-fileviews",
+  "name": "Markmap Fileviews",
+  "version": "0.0.1",
+  "minAppVersion": "1.5.7",
+  "description": "Create interactive and exportable mindmap image.",
+  "author": "PlayerMiller109",
+  "authorUrl": "https://github.com/PlayerMiller109",
+  "isDesktopOnly": true
+}
