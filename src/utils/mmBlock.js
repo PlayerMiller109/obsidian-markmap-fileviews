@@ -7,13 +7,16 @@ module.exports = (plg, ob)=> {
     const md = source.replace(fmRgx, (m, p1)=> { height = p1; return '' })
     el.style.height = `${height}px`
     const text = await md2htmlText(md, ctx.sourcePath)
+    
     if (ctx.el.parentNode?.className == 'print') {
-      await genMM(el, text, ctx.sourcePath, height)
-      el.style.height = 'fit-content'
+      // 为打印视图添加特殊类名
+      el.classList.add('print-markmap')
+      await genMM(el, text, ctx.sourcePath, true)
+    } else {
+      setTimeout(async ()=> {
+        await genMM(el, text, ctx.sourcePath)
+      }, 100)
     }
-    else setTimeout(async ()=> {
-      await genMM(el, text, ctx.sourcePath)
-    }, 100)
   }
   plg.registerMarkdownCodeBlockProcessor('markmap', mmBlock)
 }

@@ -39,18 +39,44 @@ module.exports = (app, ob)=> {
     barEl.children[4].firstChild.setCssProps({width: '16px', height: '20px'})
     return barEl
   }
-  const genMM = async (wrapper, htmlText, sourcePath, printHeight)=> {
+  const genMM = async (wrapper, htmlText, sourcePath, isPrint = false)=> {
     wrapper.empty()
     const svg = wrapper.createSvg('svg')
-    const lib = new Transformer(), { root } = lib.transform(htmlText)
-    const mm = Markmap.create(svg, mmJson.opts, root)
-    funcBtns(svg, sourcePath); await mm.fit()
-    if (printHeight) {
+    svg.classList.add('markmap')
+    
+    const lib = new Transformer()
+    const { root } = lib.transform(htmlText)
+    const mm = Markmap.create(svg, {
+      ...mmJson.opts,
+      ...(isPrint && {
+        color: ({state}) => mmJson.opts.color({state}),
+        paddingX: 8,
+        paddingY: 16,
+        nodeMinHeight: 16,
+        maxWidth: 800,
+      })
+    }, root)
+    
+    funcBtns(svg, sourcePath)
+    await mm.fit()
+    
+    if (isPrint) {
       await mm.fit()
-      // seems markmap@0.18 requires calling fit() again before exporting a PDF
-      svg.replaceWith(await svg2img(svg))
+      
+      const { width, height, x, y } = svg.getBBox()
+      
+      const padding = height * 0.05
+      const viewBoxHeight = height + (padding * 2)
+      const viewBoxY = y - padding
+      
+      svg.setAttribute('viewBox', `${x} ${viewBoxY} ${width} ${viewBoxHeight}`)
+      
+      svg.style.aspectRatio = `${width} / ${viewBoxHeight}`
+      
+      svg.querySelectorAll('button[data-k]').forEach(btn => btn.remove())
+    } else {
+      wrapper.append(customBar(mm))
     }
-    else wrapper.append(customBar(mm))
   }
   const genMM2 = (ob.debounce)(genMM)
   return { genMM, genMM2 }

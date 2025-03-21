@@ -19,3 +19,72 @@ svg.markmap {
 }
 .markdown-preview-view .mm-toolbar {position: relative;}
 .mm-toolbar-item:is(.active, :hover) {color: brown;}
+
+/* 打印样式优化 */
+@media print {
+  .print-markmap {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 2em 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    min-height: 300px; /* 确保最小高度 */
+  }
+  
+  .print-markmap svg.markmap {
+    height: auto !important;
+    width: 100% !important;
+    max-height: 85vh; /* 增加最大高度 */
+    min-height: 300px;
+    background: transparent !important;
+    
+    /* 确保SVG完整显示 */
+    object-fit: contain;
+    object-position: left center;
+    overflow: visible; /* 允许内容溢出 */
+    
+    /* 文字样式 */
+    --markmap-text-color: #000000;
+    --markmap-highlight-bg: rgba(255, 208, 0, 0.2);
+  }
+  
+  /* 优化连接线样式 */
+  .print-markmap svg.markmap path {
+    stroke-width: 1.5px;
+    vector-effect: non-scaling-stroke; /* 确保线条粗细一致 */
+  }
+  
+  /* 优化节点文本样式 */
+  .print-markmap svg.markmap g > text {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    dominant-baseline: central; /* 改善文本垂直对齐 */
+  }
+  
+  /* 根节点样式优化 */
+  .print-markmap svg.markmap g.markmap-root > g:first-child {
+    transform: translateX(0);
+  }
+  
+  /* 确保所有节点可见 */
+  .print-markmap svg.markmap g {
+    visibility: visible !important;
+  }
+  
+  /* 确保代码块正确显示 */
+  .print-markmap .markmap-foreign code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 4px;
+    border-radius: 3px;
+    line-height: 1.4;
+  }
+  
+  /* 隐藏工具栏和按钮 */
+  .print-markmap .mm-toolbar,
+  .print-markmap button[data-k] {
+    display: none !important;
+  }
+}
