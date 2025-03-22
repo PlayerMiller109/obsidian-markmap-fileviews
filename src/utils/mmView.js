@@ -1,8 +1,11 @@
 const mmViewType = 'mm-fileview', mmIcon = 'star'
+const mmBlockViewType = 'mm-block-view', mmBlockIcon = 'maximize-2'
+
 module.exports = (plg, ob)=> {
   const { app } = plg
   const md2htmlText = require('./getText/md2htmlText.js')(app, ob)
-  const { genMM2 } = require('./genMM.js')(app, ob)
+  const { genMM, genMM2 } = require('./genMM.js')(app, ob)
+  
   class mmView extends ob.FileView {
     onload() {
       setTimeout(async ()=> await this.updateLeaf(this.file)); this.genPinBtn()
@@ -38,13 +41,47 @@ module.exports = (plg, ob)=> {
     getDisplayText() { return this.file?.name || 'Markmap' }
     getIcon() { return mmIcon }
   }
+  
+  class mmBlockView extends ob.ItemView {
+    constructor(leaf) {
+      super(leaf)
+      this.sourcePath = ''
+      this.htmlContent = ''
+    }
+    
+    onload() {
+      this.contentEl.classList.add('markmap-block-view')
+    }
+    
+    async setState(state) {
+      this.sourcePath = state.sourcePath || ''
+      this.htmlContent = state.htmlContent || ''
+      
+      this.contentEl.empty()
+      
+      if (this.htmlContent) {
+        await genMM(this.contentEl, this.htmlContent, this.sourcePath)
+        
+        const filename = this.sourcePath.split('/').pop()
+        this.leaf.view.titleEl.textContent = `${filename} (思维导图)`
+        this.leaf.tabHeaderInnerTitleEl.textContent = `${filename} (思维导图)`
+      }
+    }
+    
+    getViewType() { return mmBlockViewType }
+    getDisplayText() { return '思维导图' }
+    getIcon() { return mmBlockIcon }
+  }
+  
   plg.registerView(mmViewType, leaf=> new mmView(leaf))
+  plg.registerView(mmBlockViewType, leaf=> new mmBlockView(leaf))
+  
   plg.addCommand({
     id: 'mm-active-note', name: 'Markmap active note',
     callback: async ()=> {
       const view = app.workspace.getActiveFileView()
       const leaf = app.workspace.getLeaf('split')
-      await leaf.setViewState({ type: mmViewType, state: {file: view.path} })
+      await leaf.setViewState({ type: mmViewType, state: {file: view.file.path} })
     },
     hotkeys: [{modifiers: ['Mod'], key: 'M'}],
   })

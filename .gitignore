@@ -3,3 +3,5 @@ data.json
 main.js
 main1.js
 git-*.bat
+.DS_Store
+pnpm-lock.yaml
