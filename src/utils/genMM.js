@@ -27,9 +27,9 @@ module.exports = (app, ob)=> {
         await mm.fit()
         const svg = bar.markmap.svg['_groups'][0][0]
         const img = await svg2img(svg)
-        Object.assign(document.createElement('a'), {
+        createEl('a', {attr: {
           download: `.${mmJson.imgAbbr}`, href: img.src,
-        }).click()
+        }}).click()
       },
     })
 
@@ -48,7 +48,7 @@ module.exports = (app, ob)=> {
     if (printHeight) {
       await mm.fit()
       // seems markmap@0.18 requires calling fit() again before exporting a PDF
-      svg.replaceWith(await svg2img(svg))
+      await svg2img(svg, printHeight)
     }
     else wrapper.append(customBar(mm))
   }

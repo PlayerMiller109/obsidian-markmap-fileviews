@@ -13,29 +13,43 @@ const encodeImg2B64 = async (svg)=> {
   }
 }
 const rule = require('./cssRule.js')
-const svg2img = async (svg)=> {
-  const { width: w1, height: h1 } = svg.getBoundingClientRect()
-  const { width: w2, height: h2, x, y } = svg.getBBox()
-  , scale = 2 * 1e-2 * Math.max(w2, h2)
-  , ratio = h2 / w2; let width, height
-  if (h1 / w1 < ratio) {
-    height = h1 * scale; width = height / ratio
+const svg2img = async (svg, printHeight)=> {
+  const { width: w1, height: h1, x, y } = svg.getBBox()
+  // setViewBox
+  const vbWidth = printHeight ? w1 + w1 * 0.03 : w1
+  const margin = printHeight ? Math.max(h1 * 0.03, 8) : 8
+  const vbY = y - margin
+  const vbHeight = h1 + (margin * 2)
+  svg.setAttribute('viewBox', `${x} ${vbY} ${vbWidth} ${vbHeight}`)
+  if (printHeight) {
+    if (!isNaN(printHeight)) svg.style.height = printHeight
+    return
   }
-  else {
-    width = w1 * scale; height = width * ratio
-  }
-  const margin = h2 / 75 // custom. when height is 75, margin is 1.
 
   const svgClone = svg.cloneNode(!0)
-  svgClone.prepend(Object.assign(
-    document.createElement('style'), {textContent: rule}
-  ))
+  svgClone.prepend(createEl('style', {text: rule}))
   await encodeImg2B64(svgClone)
 
   const svgStr = unescape(encodeURI(new XMLSerializer().serializeToString(svgClone)))
   // encode-unescape to support latin1
   const img = await b64b.loadNewImg(`data:image/svg+xml;base64,${btoa(svgStr)}`)
-  const b64 = b64b.getByDraw(width, height, scale, img, [-x + margin, -y + margin])
+
+  const baseValue = 4200, maxValue = 2e4
+  const ratio = vbWidth / vbHeight
+  let width, height
+  if (ratio < 1) {
+    width = baseValue; height = width / ratio
+    if (height > maxValue) {
+      height = maxValue; width = maxValue * ratio
+    }
+  }
+  else {
+    height = baseValue; width = height * ratio
+    if (width > maxValue) {
+      width = maxValue; height = maxValue / ratio
+    }
+  }
+  const b64 = b64b.getByDraw(width, height, 1, img, [0, 0])
   img.src = b64; return img
 }
 module.exports = svg2img

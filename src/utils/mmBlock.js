@@ -3,12 +3,12 @@ module.exports = (plg, ob)=> {
   const { genMM } = require('./genMM.js')(plg.app, ob)
   const mmBlock = async (source, el, ctx)=> {
     const fmRgx = new RegExp(String.raw`---\nmarkmap:\n  height: (\d+)\n---\n`, '')
-    let height = 400
+    let height
     const md = source.replace(fmRgx, (m, p1)=> { height = p1; return '' })
-    el.style.height = `${height}px`
+    el.style.height = `${height||400}px`
     const text = await md2htmlText(md, ctx.sourcePath)
     if (ctx.el.parentNode?.className == 'print') {
-      await genMM(el, text, ctx.sourcePath, height)
+      await genMM(el, text, ctx.sourcePath, height||!0)
       el.style.height = 'fit-content'
     }
     else setTimeout(async ()=> {
