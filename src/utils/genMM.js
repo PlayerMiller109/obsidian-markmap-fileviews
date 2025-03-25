@@ -39,12 +39,16 @@ module.exports = (app, ob)=> {
     barEl.children[4].firstChild.setCssProps({width: '16px', height: '20px'})
     return barEl
   }
-  const genMM = async (wrapper, htmlText, sourcePath, printHeight)=> {
+  const genMM = async (
+    wrapper, htmlText, sourcePath, {printHeight, isEditModeOpenInReading}
+  )=> {
     wrapper.empty()
     const svg = wrapper.createSvg('svg')
     const lib = new Transformer(), { root } = lib.transform(htmlText)
-    const mm = Markmap.create(svg, mmJson.opts, root)
-    funcBtns(svg, sourcePath); await mm.fit()
+    const mm = Markmap.create(svg, mmJson.opts)
+    await mm.setData(root)
+    funcBtns(svg, sourcePath)
+    if (!isEditModeOpenInReading) await mm.fit()
     if (printHeight) {
       await mm.fit()
       // seems markmap@0.18 requires calling fit() again before exporting a PDF

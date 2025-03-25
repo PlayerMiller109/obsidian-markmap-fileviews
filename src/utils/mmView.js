@@ -20,7 +20,7 @@ module.exports = (plg, ob)=> {
       if (fmPos) mdLines.splice(0, fmPos.end.line+1)
 
       const text = await md2htmlText(mdLines.join('\n'), file.path)
-      await genMM2(this.contentEl, text, file.path)
+      await genMM2(this.contentEl, text, file.path, {})
       this.leaf.view.titleEl.textContent = file.name
       this.leaf.tabHeaderInnerTitleEl.textContent = file.name
     }

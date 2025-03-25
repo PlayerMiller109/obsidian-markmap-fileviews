@@ -4,16 +4,21 @@ module.exports = (plg, ob)=> {
   const { genMM } = require('./genMM.js')(app, ob)
   const mmBlock = async (source, el, ctx)=> {
     const fmRgx = new RegExp(String.raw`---\nmarkmap:\n  height: (\d+)\n---\n`, '')
+
     let height
     const md = source.replace(fmRgx, (m, p1)=> { height = p1; return '' })
     el.style.height = `${height||400}px`
     const text = await md2htmlText(md, ctx.sourcePath)
+
+    const isEditModeOpenInReading =
+      !ctx.promises[0] && app.workspace.getActiveFileView().getMode() == 'preview'
+
     if (ctx.el.parentNode?.className == 'print') {
-      await genMM(el, text, ctx.sourcePath, height||!0)
+      await genMM(el, text, ctx.sourcePath, {printHeight: height||!0})
       el.style.height = 'fit-content'
     }
     else setTimeout(async ()=> {
-      await genMM(el, text, ctx.sourcePath)
+      await genMM(el, text, ctx.sourcePath, {isEditModeOpenInReading})
     }, 100)
   }
   plg.registerMarkdownCodeBlockProcessor('markmap', mmBlock)
